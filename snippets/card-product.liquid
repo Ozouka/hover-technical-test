@@ -18,6 +18,8 @@
   @param {string} [product_view_context] - The analytics context for the product-card view event, such as `collection`, `search`, or `recommendation`.
   @param {block} [block] - The current section block, used for optional card description content.
   @param {object} [section] - The current section context, supplied implicitly when rendered from a section and used by quick-add controls.
+  @param {boolean} [show_quick_add_drawer] - Whether to show the quick add / notify me action over the product image. Defaults to `false`.
+  @param {number} [low_stock_threshold] - Stock below which the remaining units are shown in the quick add drawer. Defaults to `10`.
 
   @example
   {% render 'card-product', card_product: product, media_aspect_ratio: 'adapt', show_secondary_image: true, section_id: section.id, quick_add: 'standard', product_view_context: 'collection' %}
@@ -145,6 +147,13 @@
                 </span>
               {%- endif -%}
             </div>
+            {%- if show_quick_add_drawer and card_product.featured_media -%}
+              {% render 'quick-add',
+                product: card_product,
+                section_id: section_id,
+                low_stock_threshold: low_stock_threshold
+              %}
+            {%- endif -%}
           </div>
         </div>
         <div class="card__content">

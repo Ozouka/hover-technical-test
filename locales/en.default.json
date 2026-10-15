@@ -190,6 +190,23 @@
       "duties_and_taxes_included": "Duties and taxes included.",
       "shipping_policy_html": "<a href=\"{{ link }}\">Shipping</a> calculated at checkout."
     },
+    "quick_add": {
+      "add_label": "Quick add {{ title }}",
+      "notify_label": "Notify me when {{ title }} is back in stock",
+      "select_size": "Select my size",
+      "size": "Size",
+      "email": "Email",
+      "email_error": "Please enter a valid email address.",
+      "add_to_cart": "Add to cart",
+      "in_stock": "In stock",
+      "low_stock": "Low stock : {{ count }} left",
+      "sold_out": "Sold out",
+      "notify_me": "Notify me",
+      "notify_intro": "Register to receive a notification when this item comes back in stock.",
+      "notify_cta": "Notify me when available",
+      "notify_success": "Thanks! We will let you know when it is back in stock at",
+      "error": "Something went wrong, please try again."
+      },
     "modal": {
       "label": "Media gallery"
     },
