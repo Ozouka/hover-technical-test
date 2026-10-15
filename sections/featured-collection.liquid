@@ -24,6 +24,12 @@
   <script src="{{ 'quick-order-list.js' | asset_url }}" defer="defer"></script>
 {%- endif -%}
 
+{%- if section.settings.enable_quick_add_drawer -%}
+  {{ 'quick-add-drawer.css' | asset_url | stylesheet_tag }}
+  <script src="{{ 'quick-add-drawer.js' | asset_url }}" defer="defer"></script>
+  <script src="{{ 'notify-me-modal.js' | asset_url }}" defer="defer"></script>
+{%- endif -%}
+
 {%- style -%}
   .section-{{ section.id }}-padding {
     padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
@@ -61,6 +67,11 @@
   assign show_desktop_slider = false
   if section.settings.enable_desktop_slider and products_to_display > section.settings.columns_desktop
     assign show_desktop_slider = true
+  endif
+
+  assign card_quick_add = section.settings.quick_add
+  if section.settings.enable_quick_add_drawer
+    assign card_quick_add = 'none'
   endif
 -%}
 
@@ -127,7 +138,9 @@
                   show_rating: section.settings.show_rating,
                   skip_styles: skip_card_product_styles,
                   section_id: section.id,
-                  quick_add: section.settings.quick_add,
+                  quick_add: card_quick_add,
+                  show_quick_add_drawer: section.settings.enable_quick_add_drawer,
+                  low_stock_threshold: section.settings.low_stock_threshold,
                   product_view_context: 'collection'
                 %}
               </li>
@@ -197,6 +210,10 @@
         </div>
       {%- endif -%}
     </slider-component>
+
+    {%- if section.settings.enable_quick_add_drawer -%}
+      {% render 'quick-add-drawer', section_id: section.id %}
+    {%- endif -%}
 
     {%- if section.settings.show_view_all and more_in_collection -%}
       <div class="center collection__view-all{% if settings.animations_reveal_on_scroll %} scroll-trigger animate--slide-in{% endif %}">
@@ -468,6 +485,23 @@
           "label": "t:sections.main-collection-product-grid.settings.quick_add.options.option_3"
         }
       ]
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_quick_add_drawer",
+      "default": true,
+      "label": "Enable quick add drawer",
+      "info": "Replaces the native quick add. Shows a Quick add or Notify me button on each card."
+    },
+    {
+      "type": "range",
+      "id": "low_stock_threshold",
+      "min": 1,
+      "max": 50,
+      "step": 1,
+      "default": 10,
+      "label": "Low stock threshold",
+      "info": "Below this number of units, the remaining stock is shown in the drawer."
     },
     {
       "type": "header",

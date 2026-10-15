@@ -1,0 +1,144 @@
+{%- liquid
+  assign drawer_id = 'QuickAddDrawer-' | append: section_id
+  assign modal_id = 'NotifyMeModal-' | append: section_id
+  assign data_id = 'QuickAddData-' | append: section_id | append: '-' | append: product.id
+  assign content_id = 'QuickAddContent-' | append: section_id | append: '-' | append: product.id
+  assign threshold = low_stock_threshold | default: 10
+-%}
+
+{%- if product.available -%}
+  <button
+    type="button"
+    class="card__action card__action--add"
+    data-quick-add
+    data-drawer="{{ drawer_id }}"
+    {% if product.has_only_default_variant %}
+      data-variant-id="{{ product.selected_or_first_available_variant.id }}"
+    {% else %}
+      data-template="{{ content_id }}"
+    {% endif %}
+    aria-label="{{ 'products.quick_add.add_label' | t: title: product.title }}"
+  >
+    {% render 'icon', variant: 'plus', svg_class: 'card__action-icon' %}
+  </button>
+{%- else -%}
+  <button
+    type="button"
+    class="card__action card__action--notify"
+    data-notify-me
+    data-modal="{{ modal_id }}"
+    data-source="{{ data_id }}"
+    aria-label="{{ 'products.quick_add.notify_label' | t: title: product.title }}"
+  >
+    {% render 'icon', variant: 'bell', svg_class: 'card__action-icon' %}
+  </button>
+{%- endif -%}
+
+{%- unless product.has_only_default_variant and product.available -%}
+  <script type="application/json" id="{{ data_id }}">{{ product | json }}</script>
+{%- endunless -%}
+
+{%- if product.available and product.has_only_default_variant == false -%}
+  {%- liquid
+    assign color_index = -1
+    assign size_index = -1
+    assign color_names = 'color,colour,couleur' | split: ','
+    assign size_names = 'size,pointure,taille' | split: ','
+    for option in product.options_with_values
+      assign option_name = option.name | downcase
+      if color_names contains option_name
+        assign color_index = forloop.index0
+      elsif size_names contains option_name
+        assign size_index = forloop.index0
+      endif
+    endfor
+
+    if color_index >= 0
+      assign colors = product.options_with_values[color_index].values
+    else
+      assign colors = 'all' | split: ','
+    endif
+  -%}
+
+  <template id="{{ content_id }}">
+    <div class="qa-product">
+      <div class="qa-product__media">
+        {%- if product.featured_media -%}
+          {{ product.featured_media | image_url: width: 240 | image_tag: loading: 'lazy', widths: '120, 240', alt: product.featured_media.alt }}
+        {%- endif -%}
+      </div>
+      <div class="qa-product__info">
+        <h3 class="qa-product__title">{{ product.title }}</h3>
+        <p class="qa-product__description">{{ product.description | strip_html }}</p>
+        {% render 'price', product: product, use_variant: false, show_badges: true, show_compare_at_price: true %}
+      </div>
+    </div>
+
+    {%- if color_index >= 0 -%}
+      <fieldset class="qa-colors">
+        <legend class="qa-colors__legend">{{ product.options[color_index] }}</legend>
+        {%- for color in colors -%}
+          {%- assign color_available = false -%}
+          {%- for variant in product.variants -%}
+            {%- if variant.options[color_index] == color and variant.available -%}
+              {%- assign color_available = true -%}
+            {%- endif -%}
+          {%- endfor -%}
+          <label class="qa-color {% unless color_available %}qa-color--unavailable{% endunless %}">
+            <input type="radio" name="color" value="{{ color | escape }}" data-available="{{ color_available }}">
+            <span>{{ color }}</span>
+          </label>
+        {%- endfor -%}
+      </fieldset>
+    {%- endif -%}
+
+    {%- for color in colors -%}
+      <ul class="qa-sizes" data-size-list data-color="{{ color | escape }}" hidden>
+        {%- for variant in product.variants -%}
+          {%- if color_index >= 0 and variant.options[color_index] != color -%}
+            {%- continue -%}
+          {%- endif -%}
+          {%- liquid
+            if size_index >= 0
+              assign size_label = variant.options[size_index]
+            else
+              assign size_label = 'products.quick_add.add_to_cart' | t
+            endif
+          -%}
+          <li class="qa-sizes__item">
+            {%- if variant.available -%}
+              <button type="button" class="qa-size" data-add-variant="{{ variant.id }}">
+                <span class="qa-size__label">{{ size_label }}</span>
+                <span class="qa-size__stock">
+                  {%- if variant.inventory_management == 'shopify' and variant.inventory_quantity > 0 and variant.inventory_quantity < threshold -%}
+                    {{ 'products.quick_add.low_stock' | t: count: variant.inventory_quantity }}
+                  {%- else -%}
+                    {{ 'products.quick_add.in_stock' | t }}
+                  {%- endif -%}
+                </span>
+              </button>
+            {%- else -%}
+              <div class="qa-size qa-size--sold-out">
+                <span class="qa-size__label">{{ size_label }}</span>
+                <span class="qa-size__stock">
+                  {{ 'products.quick_add.sold_out' | t }}
+                  {% render 'icon', variant: 'bell', svg_class: 'qa-modal__submit-icon' %}
+                  <button
+                    type="button"
+                    class="qa-size__notify"
+                    data-notify-me
+                    data-modal="{{ modal_id }}"
+                    data-source="{{ data_id }}"
+                    data-variant-id="{{ variant.id }}"
+                  >
+                    {{ 'products.quick_add.notify_me' | t }}
+                  </button>
+                </span>
+              </div>
+            {%- endif -%}
+          </li>
+        {%- endfor -%}
+      </ul>
+    {%- endfor -%}
+  </template>
+{%- endif -%}
