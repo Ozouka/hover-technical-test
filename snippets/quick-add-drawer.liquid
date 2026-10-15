@@ -1,0 +1,93 @@
+<quick-add-drawer id="QuickAddDrawer-{{ section_id }}">
+  <dialog class="qa-drawer" aria-labelledby="QuickAddDrawerTitle-{{ section_id }}">
+    <div class="qa-drawer__panel">
+      <header class="qa-drawer__header">
+        <h2 class="qa-drawer__title" id="QuickAddDrawerTitle-{{ section_id }}">
+          {{ 'products.quick_add.select_size' | t }}
+        </h2>
+        <button
+          type="button"
+          class="qa-drawer__close"
+          data-drawer-close
+          aria-label="{{ 'accessibility.close' | t }}"
+        >
+          {% render 'icon', variant: 'close', svg_class: 'qa-close-icon' %}
+        </button>
+      </header>
+      <div class="qa-drawer__body" data-drawer-body></div>
+      <p
+        class="qa-drawer__error"
+        data-drawer-error
+        role="alert"
+        data-fallback-message="{{ 'products.quick_add.error' | t | escape }}"
+        hidden
+      ></p>
+    </div>
+  </dialog>
+</quick-add-drawer>
+
+<notify-me-modal id="NotifyMeModal-{{ section_id }}">
+  <dialog class="qa-modal" aria-labelledby="NotifyMeTitle-{{ section_id }}">
+    <div class="qa-modal__panel">
+      <h2
+        class="qa-modal__title"
+        id="NotifyMeTitle-{{ section_id }}"
+        data-notify-title
+      ></h2>
+      <p class="qa-modal__text">
+        {{ 'products.quick_add.notify_intro' | t }}
+      </p>
+
+      <form novalidate>
+        <div class="qa-field" data-notify-size-field>
+          <label class="visually-hidden" for="NotifySize-{{ section_id }}">
+            {{ 'products.quick_add.size' | t }}
+          </label>
+          <select
+            class="qa-field__control"
+            id="NotifySize-{{ section_id }}"
+            name="variant"
+            data-notify-size
+          ></select>
+          {% render 'icon', variant: 'chevron-down', svg_class: 'qa-field__chevron' %}
+        </div>
+
+        <div class="qa-field">
+          <label class="visually-hidden" for="NotifyEmail-{{ section_id }}">
+            {{ 'products.quick_add.email' | t }}
+          </label>
+          <input
+            class="qa-field__control"
+            id="NotifyEmail-{{ section_id }}"
+            type="email"
+            name="email"
+            placeholder="{{ 'products.quick_add.email' | t }}"
+            required
+            autocomplete="email"
+            pattern="[^@\s]+@[^@\s]+\.[^@\s]+"
+            aria-describedby="NotifyError-{{ section_id }}"
+            data-notify-email
+            data-error-message="{{ 'products.quick_add.email_error' | t | escape }}"
+          >
+          <p
+            class="qa-field__error"
+            id="NotifyError-{{ section_id }}"
+            data-notify-error
+            role="alert"
+            hidden
+          ></p>
+        </div>
+
+        <button type="submit" class="qa-modal__submit" data-notify-submit>
+          {% render 'icon', variant: 'bell', svg_class: 'qa-modal__submit-icon' %}
+          {{ 'products.quick_add.notify_cta' | t }}
+        </button>
+      </form>
+
+      <p class="qa-modal__success" data-notify-success role="status" hidden>
+        {{ 'products.quick_add.notify_success' | t }}
+        <strong data-notify-success-email></strong>
+      </p>
+    </div>
+  </dialog>
+</notify-me-modal>
